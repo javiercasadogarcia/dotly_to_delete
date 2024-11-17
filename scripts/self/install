@@ -3,4 +3,28 @@
 source "$DOTLY_PATH/scripts/core/_main.sh"
 source "$DOTLY_PATH/scripts/self/utils/install.sh"
 
+export ZIM_HOME="$DOTFILES_PATH/shell/zsh/.zim"
+
+if platform::is_macos; then
+	#export PATH="$HOME/.cargo/bin:$PATH"
+	output::answer "🍎 Setting up macOS platform"
+	install_macos_custom
+fi
+
+if platform::is_linux; then
+	output::answer "🐧 Setting up linux platform"
+	install_linux_custom
+fi
+
+script::depends_on docpars fzf zsh python3
+
+##? Install dotly and setup dotfiles
+##?
+##? Usage:
+##?    install
+docs::parse "$@"
+
+output::answer "Creating dotfiles structure"
+"$DOTLY_PATH/bin/dot" dotfiles create | log::file "Creating dotfiles structure" || exit 1
+
 ## TODO
