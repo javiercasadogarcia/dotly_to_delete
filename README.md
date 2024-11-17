@@ -13,13 +13,13 @@ frameworks. It creates an opinionated dotfiles structure to handle all your conf
 Using wget:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/javiercasadogarcia/dotly/HEAD/installer)
+bash <(wget -qO- https://raw.githubusercontent.com/javiercasadogarcia/dotly/refs/heads/main/installer)
 ```
 
 Or using curl:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/javiercasadogarcia/dotly/HEAD/installer)
+bash <(curl -s https://raw.githubusercontent.com/javiercasadogarcia/dotly/refs/heads/main/installer)
 ```
 
 ## 🐳 Try it in Docker
