@@ -57,6 +57,7 @@ install_linux_custom() {
 	brew list findutils || brew install findutils | log::file "Installing brew findutils"
 	brew list bat || brew install bat | log::file "Installing brew bat"
 	brew list hyperfine || brew install hyperfine | log::file "Installing brew hyperfine"
+ 	brew list terminator || brew install terminator | log::file "Installing brew terminator"
 }
 
 backup_files() {
