@@ -34,7 +34,10 @@ install_macos_custom() {
 }
 
 install_linux_custom() {
-	echo
+	output::answer "Installing needed gnu packages"
+ 	sudo apt install zsh
+  	sudo apt install make
+   	sudo apt install hyperfine
 }
 
 backup_files() {
