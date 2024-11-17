@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+source "$DOTLY_PATH/scripts/self/utils/install.sh"
+
+## TODO
