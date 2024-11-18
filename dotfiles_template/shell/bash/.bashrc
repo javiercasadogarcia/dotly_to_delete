@@ -10,6 +10,8 @@ EXPORTED_PATH=$(
 )
 export PATH="$PATH:$EXPORTED_PATH"
 
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 themes_paths=(
   "$DOTFILES_PATH/shell/bash/themes"
   "$DOTLY_PATH/shell/bash/themes"
