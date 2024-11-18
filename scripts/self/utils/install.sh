@@ -44,20 +44,23 @@ install_linux_custom() {
 		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	fi
 
+ 	sudo apt-get install build-essential
+
  	mkdir -p "$HOME/bin"
 
 	output::answer "Installing needed gnu packages"
- 	#sudo apt install zsh
-  	#sudo apt install make
-   	#sudo apt install hyperfine
-    	brew list zsh || brew install zsh | log::file "Installing brew zsh"
-	brew list coreutils || brew install coreutils | log::file "Installing brew coreutils"
-	brew list make || brew install make | log::file "Installing brew make"
-	brew list gnu-sed || brew install gnu-sed | log::file "Installing brew gnu-sed"
-	brew list findutils || brew install findutils | log::file "Installing brew findutils"
-	brew list bat || brew install bat | log::file "Installing brew bat"
-	brew list hyperfine || brew install hyperfine | log::file "Installing brew hyperfine"
- 	brew list terminator || brew install terminator | log::file "Installing brew terminator"
+ 	sudo apt install -y zsh
+  	sudo apt install -y make
+   	sudo apt install -y hyperfine
+   	sudo apt install -y terminator
+    	#brew list zsh || brew install zsh | log::file "Installing brew zsh"
+	#brew list coreutils || brew install coreutils | log::file "Installing brew coreutils"
+	#brew list make || brew install make | log::file "Installing brew make"
+	#brew list gnu-sed || brew install gnu-sed | log::file "Installing brew gnu-sed"
+	#brew list findutils || brew install findutils | log::file "Installing brew findutils"
+	#brew list bat || brew install bat | log::file "Installing brew bat"
+	#brew list hyperfine || brew install hyperfine | log::file "Installing brew hyperfine"
+ 	#brew list terminator || brew install terminator | log::file "Installing brew terminator"
 }
 
 backup_files() {
