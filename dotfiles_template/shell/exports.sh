@@ -32,7 +32,7 @@ path=(
 	"$DOTLY_PATH/bin"
 	"$DOTFILES_PATH/bin"
 	"$JAVA_HOME/bin"
-#	"$HOME/.cargo/bin"
+	"$HOME/.cargo/bin"
 	"/usr/local/opt/ruby/bin"
 	"/usr/local/opt/python/libexec/bin"
 	"/opt/homebrew/bin"
