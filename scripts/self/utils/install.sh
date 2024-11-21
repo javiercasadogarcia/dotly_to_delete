@@ -56,6 +56,7 @@ install_linux_custom() {
   	#sudo apt install -y make
    	#sudo apt install -y hyperfine
    	#sudo apt install -y terminator
+    	brew list gcc || brew install gcc | log::file "Installing brew gcc"
     	brew list zsh || brew install zsh | log::file "Installing brew zsh"
 	brew list coreutils || brew install coreutils | log::file "Installing brew coreutils"
 	brew list make || brew install make | log::file "Installing brew make"
