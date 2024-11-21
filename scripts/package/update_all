@@ -4,12 +4,10 @@ set -uo pipefail
 
 source "$DOTLY_PATH/scripts/core/_main.sh"
 source "$DOTLY_PATH/scripts/package/src/package_managers/brew.sh"
-if platform::is_macos; then
-  source "$DOTLY_PATH/scripts/package/src/package_managers/cargo.sh"
-  source "$DOTLY_PATH/scripts/package/src/package_managers/mas.sh"
-fi
+source "$DOTLY_PATH/scripts/package/src/package_managers/cargo.sh"
 source "$DOTLY_PATH/scripts/package/src/package_managers/composer.sh"
 source "$DOTLY_PATH/scripts/package/src/package_managers/gem.sh"
+source "$DOTLY_PATH/scripts/package/src/package_managers/mas.sh"
 source "$DOTLY_PATH/scripts/package/src/package_managers/npm.sh"
 source "$DOTLY_PATH/scripts/package/src/package_managers/pip.sh"
 
