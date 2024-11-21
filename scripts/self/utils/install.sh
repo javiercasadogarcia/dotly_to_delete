@@ -34,40 +34,7 @@ install_macos_custom() {
 }
 
 install_linux_custom() {
- 	sudo apt-get install -y build-essential
-
- 	if ! platform::command_exists brew; then
-		output::error "brew not installed, installing"
-
-		if [ "$DOTLY_ENV" == "CI" ]; then
-			export CI=1
-		fi
-
-		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    		echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> $HOME/.bashrc
-    		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      		source $HOME/.bashrc
-	fi
-
- 	mkdir -p "$HOME/bin"
-
-	output::answer "Installing needed gnu packages"
- 	#sudo apt install -y zsh
-  	#sudo apt install -y make
-   	#sudo apt install -y hyperfine
-   	#sudo apt install -y terminator
-    	brew list gcc || brew install gcc | log::file "Installing brew gcc"
-    	brew list zsh || brew install zsh | log::file "Installing brew zsh"
-	brew list coreutils || brew install coreutils | log::file "Installing brew coreutils"
-	brew list make || brew install make | log::file "Installing brew make"
-	brew list gnu-sed || brew install gnu-sed | log::file "Installing brew gnu-sed"
-	brew list findutils || brew install findutils | log::file "Installing brew findutils"
-	brew list bat || brew install bat | log::file "Installing brew bat"
-	brew list hyperfine || brew install hyperfine | log::file "Installing brew hyperfine"
- 	brew list terminator || brew install terminator | log::file "Installing brew terminator"
-
-	output::answer "Installing mas"
-	brew list mas || brew install mas | log::file "Installing mas"
+	echo
 }
 
 backup_files() {
