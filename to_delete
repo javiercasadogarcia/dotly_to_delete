@@ -1,0 +1,201 @@
+import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import org.springframework.data.domain.Page;
+
+@Getter
+@EqualsAndHashCode
+@ToString
+public class PageMetadataResource<T> {
+
+    private final Integer page;
+    private final Long offset;
+    private final Integer limit;
+    private final long total;
+    private final PageSortResource sort;
+
+    public PageMetadataResource(Page<T> page) {
+        this(
+                page.getPageable().isPaged() ? Integer.valueOf(page.getPageable().getPageNumber()) : Integer.valueOf(0),
+                page.getPageable().isPaged() ? page.getPageable().getOffset() : null,
+                page.getPageable().isPaged() ? page.getPageable().getPageSize() : null,
+                page.getTotalElements(),
+                page.getSort().isSorted()
+                        ? page.getSort().stream()
+                            .findFirst()
+                            .map(order -> new PageSortResource(order.getProperty(), order.isAscending()))
+                            .orElse(null)
+                        : null);
+    }
+
+    @JsonCreator
+    private PageMetadataResource(Integer page, Long offset, Integer limit, long total, PageSortResource sort) {
+        this.page = page;
+        this.offset = offset;
+        this.limit = limit;
+        this.total = total;
+        this.sort = sort;
+    }
+
+}
+//-----------------------------------------------------------------------
+
+public record PageSortResource(String field, boolean ascending) {
+}
+//-----------------------------------------------------------------------
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
+
+@Getter
+@EqualsAndHashCode
+@ToString
+public class PageResource<T> {
+
+    private final PageMetadataResource<T> metadata;
+    private final List<T> elements;
+
+    public PageResource(Page<T> page) {
+        this(new PageMetadataResource<>(page), page.getContent());
+    }
+
+    @JsonCreator
+    private PageResource(PageMetadataResource<T> metadata, List<T> elements) {
+        this.metadata = metadata;
+        this.elements = elements;
+    }
+
+}
+//-----------------------------------------------------------------------
+
+import static java.lang.Math.min;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PageResourceTest {
+
+    private final BookController bookController = new BookController();
+
+    @Test
+    void shouldReturnElementsWithMetadataWithoutPaginationInfo() {
+        final PageResource<Book> books = bookController.withoutPagination();
+        assertThat(books.getMetadata().getPage()).isZero();
+        assertThat(books.getMetadata().getTotal()).isEqualTo(6);
+        assertThat(books.getElements()).hasSize(6);
+    }
+
+    @Test
+    void shouldReturnElementsWithMetadataIncludingPaginationInfo() {
+        final PageResource<Book> firstPage = bookController.paginated(0, 5);
+        assertThat(firstPage.getMetadata().getPage()).isZero();
+        assertThat(firstPage.getMetadata().getOffset()).isZero();
+        assertThat(firstPage.getMetadata().getLimit()).isEqualTo(5);
+        assertThat(firstPage.getElements()).hasSize(firstPage.getMetadata().getLimit());
+        assertThat(firstPage.getMetadata().getTotal()).isEqualTo(6);
+
+        final PageResource<Book> secondPage = bookController.paginated(5, 5);
+        assertThat(secondPage.getMetadata().getPage()).isEqualTo(1);
+        assertThat(secondPage.getMetadata().getOffset()).isEqualTo(5);
+        assertThat(secondPage.getMetadata().getLimit()).isEqualTo(5);
+        assertThat(secondPage.getElements()).hasSize(1);
+        assertThat(secondPage.getMetadata().getTotal()).isEqualTo(6);
+        assertThat(secondPage.getMetadata().getSort().field()).isEqualTo("title");
+        assertThat(secondPage.getMetadata().getSort().ascending()).isTrue();
+    }
+
+    public record Book(String title, String author) {
+    }
+
+    public static class BookController {
+
+        private final List<Book> data = new ArrayList<>(6);
+
+        public BookController() {
+            data.add(new Book("Clean Code", "Robert C. Martin"));
+            data.add(new Book("Clean Architecture", "Robert C. Martin"));
+            data.add(new Book("Extreme Programming Explained", "Kent Beck"));
+            data.add(new Book("Test Driven Development", "Kent Beck"));
+            data.add(new Book("Effective Java", "Joshua Bloch"));
+            data.add(new Book("Refactoring", "Martin Fowler"));
+        }
+
+        public PageResource<Book> paginated(int offset, int limit) {
+            final int subListLimit = min((offset + limit), data.size());
+            return new PageResource<>(
+                    new PageImpl<>(
+                            data.subList(offset, subListLimit),
+                            PageRequest.of(offset / limit, limit, Direction.ASC, "title"),
+                            data.size()));
+        }
+
+        public PageResource<Book> withoutPagination() {
+            return new PageResource<>(new PageImpl<>(data));
+        }
+
+    }
+
+}
+//-----------------------------------------------------------------------
+
+import com.ebro.boot.core.config.BootSerializationConfiguration;
+import com.ebro.boot.dictionary.config.DictionaryAutoConfiguration;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {BootSerializationConfiguration.class, DictionaryAutoConfiguration.class})
+class PageableDeSerializationIT {
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    void deSerializePageMetadataResource() throws JsonProcessingException {
+        final PageImpl<String> page = new PageImpl<>(List.of("1", "2", "3", "4"), PageRequest.of(0, 2, Sort.by(Sort.Order.asc("value"))), 4);
+        final PageResource<String> pageResource = new PageResource<>(page);
+
+        final String json = objectMapper.writeValueAsString(pageResource);
+        assertThat(json).isEqualTo("{\"metadata\":{\"page\":0,\"offset\":0,\"limit\":2,\"total\":4,\"sort\":{\"field\":\"value\",\"ascending\":true}},\"elements\":[\"1\",\"2\",\"3\",\"4\"]}");
+
+        final PageResource<String> actualPageResource = objectMapper.readValue(json, PageResource.class);
+        assertThat(actualPageResource).isEqualTo(pageResource);
+    }
+
+}
+//-----------------------------------------------------------------------
+
+...
+@RestController
+public class OfferController {
+
+    ...
+
+    @GetMapping(path = "/v1/offers")
+    public ResponseEntity<PageResource<OfferResponse>> getOffers(@PageableDefault final Pageable pageable){
+        return ResponseEntity.ok(getPageableResponse(pageable));
+    }
+
+    private PageResource<OfferResponse> getPageableResponse(Pageable pageable){
+       return new PageResource(new PageImpl(commercialOfferService.getOffers(pageable).stream().map(offerEntity -> conversionService.convert(offerEntity, OfferResponse.class)).collect(Collectors.toList())));
+    }
+}
+//-----------------------------------------------------------------------
+
+
